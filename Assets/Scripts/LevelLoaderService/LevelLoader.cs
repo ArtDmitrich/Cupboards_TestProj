@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Extensions;
 using FactoryAndPoolObject;
 using Gameplay.GameItems;
 using UnityEngine;
@@ -16,6 +17,8 @@ namespace LevelLoaderService
 
         private string _currentFilePath;
         private readonly LevelData _currentLevelData;
+        
+        private const int GAME_ITEMS_LAYER_MASK_INDEX = 6;
         
         [Inject]
         public LevelLoader (IGameItemFactory<Point> pointFactory, IGameItemFactory<Chip> chipFactory,
@@ -57,6 +60,8 @@ namespace LevelLoaderService
                     
                     currentGameItemId++;
                     newPoint.Initialize(currentGameItemId, GameItemType.Point, x, y);
+                    newPoint.Collider.enabled = true;
+                    newPoint.gameObject.SetLayerRecursively(GAME_ITEMS_LAYER_MASK_INDEX);
                     
                     _currentLevelData.Points.Add(newPoint);
                 }
@@ -82,6 +87,8 @@ namespace LevelLoaderService
                     currentGameItemId++;
                     var startPoint = _currentLevelData.Points.FirstOrDefault(p => p.Id == startPositionsPointId[i]); 
                     newChip.Initialize(currentGameItemId, GameItemType.Chip, startPoint, winPositionsPointId[i]);
+                    newChip.Collider.enabled = true;
+                    newChip.gameObject.SetLayerRecursively(GAME_ITEMS_LAYER_MASK_INDEX);
                     
                     _currentLevelData.Chips.Add(newChip);
                 }
@@ -100,6 +107,7 @@ namespace LevelLoaderService
                     var pointA = _currentLevelData.Points.FirstOrDefault(p => p.Id == a);
                     var pointB = _currentLevelData.Points.FirstOrDefault(p => p.Id == b);
                     newConnection.Initialize(currentGameItemId, GameItemType.Connection, pointA, pointB);
+                    newConnection.gameObject.SetLayerRecursively(GAME_ITEMS_LAYER_MASK_INDEX);
                     
                     _currentLevelData.Connections.Add(newConnection);
                 }

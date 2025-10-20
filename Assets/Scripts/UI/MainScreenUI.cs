@@ -7,6 +7,8 @@ namespace UI
 {
     public class MainScreenUI : MonoBehaviour
     {
+        [SerializeField] private Button _closeAppButton;
+        
         [SerializeField] private Button _miniMapButton;
         [SerializeField] private Button _selectLevelPanelButton;
 
@@ -19,6 +21,8 @@ namespace UI
         [Inject]
         public void Construct(IGameplayController gameplayController) 
             => _gameplayController = gameplayController;
+        
+        private void CloseApp() => Application.Quit();
         
         private void OpenMiniMap() => _miniMap.gameObject.SetActive(true);
         
@@ -33,6 +37,8 @@ namespace UI
         
         private void OnEnable()
         {
+            _closeAppButton.onClick.AddListener(CloseApp);
+            
             _miniMapButton.onClick.AddListener(OpenMiniMap);
             _selectLevelPanelButton.onClick.AddListener(OpenSelectLevelPanel);
             
@@ -41,11 +47,12 @@ namespace UI
             
             _gameplayController.PlayerWin += OpenWinScreen;
             _winScreen.OnClose += CloseWinScreen;
-
         }
 
         private void OnDisable()
         {
+            _closeAppButton.onClick.RemoveListener(CloseApp);
+            
             _miniMapButton.onClick.RemoveListener(OpenMiniMap);
             _selectLevelPanelButton.onClick.RemoveListener(OpenSelectLevelPanel);
             

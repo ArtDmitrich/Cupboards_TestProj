@@ -42,7 +42,8 @@ namespace Gameplay
             }
             
             var mousePos = _mainCamera.ScreenToWorldPoint(clickPosition);
-            var hit = Physics2D.Raycast(mousePos, Vector2.zero);
+            var hit = Physics2D.Raycast(mousePos, Vector2.zero,
+                Mathf.Infinity, 1 << LayerMask.NameToLayer("GameItems"));
 
             if (hit.collider != null)
             {

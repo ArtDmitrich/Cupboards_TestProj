@@ -114,16 +114,19 @@ namespace MiniMap
         {
             foreach (var point in _miniMapLevelData.Points)
             {
+                point.transform.parent = null;
                 _pointFactory.Despawn(point);
             }
 
             foreach (var chip in _miniMapLevelData.Chips)
             {
+                chip.transform.parent = null;
                 _chipFactory.Despawn(chip);
             }
             
             foreach (var connection in _miniMapLevelData.Connections)
             {
+                connection.transform.parent = null;
                 _connectionFactory.Despawn(connection);
             }
 
