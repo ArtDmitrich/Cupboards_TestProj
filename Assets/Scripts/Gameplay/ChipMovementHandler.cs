@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using Gameplay.GameItems;
+using LoggerService;
 using UnityEngine;
 using Zenject;
 
@@ -12,13 +13,15 @@ namespace Gameplay
         public event Action OnMovementCompleted;
         
         private readonly IBoard _board;
+        private readonly ILoggerService _loggerService;
         
         private Sequence _movementSequence;
         
         [Inject]
-        public ChipMovementHandler(IBoard board)
+        public ChipMovementHandler(IBoard board, ILoggerService loggerService)
         {
             _board = board;
+            _loggerService = loggerService;
         }
 
         private bool IsMoving => _movementSequence != null && _movementSequence.IsPlaying();
@@ -39,7 +42,7 @@ namespace Gameplay
             
             if (path == null || path.Count < 2)
             {
-                Debug.LogWarning($"No valid path found from point {chip.CurrentPoint.Id} to point {targetPoint.Id}");
+                _loggerService.LogWarning($"No valid path found from point {chip.CurrentPoint.Id} to point {targetPoint.Id}");
                 return;
             }
             

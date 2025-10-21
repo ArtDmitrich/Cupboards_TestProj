@@ -1,11 +1,14 @@
 ﻿using System;
+using CamerasController;
 using Extensions;
 using Gameplay.GameItems;
 using LevelLoaderService;
+using LoggerService;
 using MiniMap;
 using UI;
 using UnityEngine;
 using Zenject;
+using CameraType = CamerasController.CameraType;
 
 namespace Gameplay
 {
@@ -18,8 +21,9 @@ namespace Gameplay
         private IChipMovementHandler _chipMovementHandler;
         private ILevelLoader _levelLoader;
         private IMiniMap _miniMap;
-        
         private ISelectLevelPanelUI _selectLevelPanelUI;
+        private ICamerasController _camerasController;
+        private ILoggerService _loggerService;
         
         private const float _segmentDuration = 0.2f;
         private const float _intervalBtwSegmnt = 0.05f;
@@ -27,7 +31,8 @@ namespace Gameplay
         [Inject]
         public void Construct(IBoard board, IItemSelectionHandler itemSelectionHandler,
             IChipMovementHandler chipMovementHandler, ILevelLoader levelLoader,
-            IMiniMap miniMap, ISelectLevelPanelUI selectLevelPanelUI)
+            IMiniMap miniMap, ISelectLevelPanelUI selectLevelPanelUI,
+            ICamerasController camerasController, ILoggerService loggerService)
         {
             _board = board;
             _itemSelectionHandler = itemSelectionHandler;
@@ -35,6 +40,8 @@ namespace Gameplay
             _levelLoader = levelLoader;
             _miniMap = miniMap;
             _selectLevelPanelUI = selectLevelPanelUI;
+            _camerasController = camerasController;
+            _loggerService = loggerService;
         }
 
         private void Start()
@@ -51,11 +58,19 @@ namespace Gameplay
             
             if (_levelLoader.TryLoadLevel(levelPath, out var level))
             {
+                _loggerService.Log($"Level {levelName} loaded successfully");
+                
                 _board.SetData(level);
-                Camera.main.FitToPoints(level.Points);
+                
+                _camerasController.FitToPointsCamera(CameraType.MainCamera,
+                    level.GetGameItemTransforms(GameItemType.Point));
                 
                 _miniMap.CreateMiniMapLevel(level);
                 _miniMap.SetMiniMapVisible(true);
+            }
+            else
+            {
+                _loggerService.Log($"Failed to load level {levelName}");
             }
             
             _itemSelectionHandler.SetClickProcessing(true);

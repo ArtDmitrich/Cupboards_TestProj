@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Extensions;
 using FactoryAndPoolObject;
 using Gameplay.GameItems;
+using LoggerService;
 using UnityEngine;
 using Zenject;
 
@@ -14,6 +16,7 @@ namespace LevelLoaderService
         private IGameItemFactory<Point> _pointFactory;
         private IGameItemFactory<Chip> _chipFactory;
         private IGameItemFactory<Connection> _connectionFactory;
+        private ILoggerService _loggerService;
 
         private string _currentFilePath;
         private readonly LevelData _currentLevelData;
@@ -22,11 +25,12 @@ namespace LevelLoaderService
         
         [Inject]
         public LevelLoader (IGameItemFactory<Point> pointFactory, IGameItemFactory<Chip> chipFactory,
-            IGameItemFactory<Connection> connectionFactory)
+            IGameItemFactory<Connection> connectionFactory, ILoggerService loggerService)
         {
             _pointFactory = pointFactory;
             _chipFactory = chipFactory;
             _connectionFactory = connectionFactory;
+            _loggerService = loggerService;
             
             _currentLevelData = new LevelData();
         }
@@ -34,14 +38,85 @@ namespace LevelLoaderService
         public bool TryLoadLevel(string filePath, out LevelData levelData)
         {
             levelData = _currentLevelData;
+            _currentLevelData.ClearData();
             
+            if (ValidateBasicFileStructure(filePath, out var lines))
+            {
+                return CreateLevelObjects(lines, out levelData);
+            }
+
+            return false;
+        }
+
+        private bool ValidateBasicFileStructure(string filePath, out string[] lines)
+        {
             if (!File.Exists(filePath))
             {
-                Debug.LogError("File not found: " + filePath);
+                _loggerService.LogError("File not found: " + filePath);
+                lines = Array.Empty<string>();
                 return false;
             }
 
-            var lines = File.ReadAllLines(filePath);
+            lines = File.ReadAllLines(filePath);
+
+            // Проверяем минимальное количество строк
+            if (lines.Length < 5)
+            {
+                _loggerService.LogError($"File too short. Expected at least 5 lines, got {lines.Length}");
+                return false;
+            }
+
+            // 1. Количество фишек
+            if (!int.TryParse(lines[0], out var chipCount) || chipCount <= 0)
+            {
+                _loggerService.LogError($"Invalid chip count: {lines[0]}");
+                return false;
+            }
+
+            // 2. Количество точек
+            if (!int.TryParse(lines[1], out var pointCount) || pointCount <= 0)
+            {
+                _loggerService.LogError($"Invalid point count: {lines[1]}");
+                return false;
+            }
+
+            // Проверяем, что есть достаточно строк для точек
+            if (lines.Length < 2 + pointCount)
+            {
+                _loggerService.LogError($"Not enough lines for points. Need {2 + pointCount}, got {lines.Length}");
+                return false;
+            }
+
+            // 14. Количество соединений
+            var connectionCountLineIndex = 4 + pointCount;
+            
+            if (connectionCountLineIndex >= lines.Length)
+            {
+                _loggerService.LogError($"Missing connection count at line {connectionCountLineIndex}");
+                return false;
+            }
+
+            if (!int.TryParse(lines[connectionCountLineIndex], out var connectionCount) || connectionCount < 0)
+            {
+                _loggerService.LogError($"Invalid connection count: {lines[connectionCountLineIndex]}");
+                return false;
+            }
+
+            // Проверяем общее количество строк
+            var expectedTotalLines = 5 + pointCount + connectionCount;
+            
+            if (lines.Length < expectedTotalLines)
+            {
+                _loggerService.LogError($"Not enough lines. Expected {expectedTotalLines}, got {lines.Length}");
+                return false;
+            }
+
+            return true;
+        }
+        
+        private bool CreateLevelObjects(string[] lines, out LevelData levelData)
+        {
+            levelData = _currentLevelData;
 
             try
             {
@@ -114,7 +189,7 @@ namespace LevelLoaderService
             }
             catch (Exception e)
             {
-                Debug.LogError("Error parsing level file: " + e.Message);
+                _loggerService.LogError("Error parsing level file: " + e.Message);
                 return false;
             }
             

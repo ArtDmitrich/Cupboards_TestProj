@@ -1,8 +1,10 @@
-﻿using FactoryAndPoolObject;
+﻿using CamerasController;
+using FactoryAndPoolObject;
 using Gameplay;
 using Gameplay.GameItems;
 using Input;
 using LevelLoaderService;
+using LoggerService;
 using MiniMap;
 using UI;
 using UnityEngine;
@@ -26,6 +28,8 @@ namespace Bootstrap
         [SerializeField] private MiniMapUI _miniMapUI;
         [SerializeField] private SelectLevelPanelUI _selectLevelPanelUI;
         
+        [SerializeField] private CamerasController.CamerasController _camerasController;
+        
         public override void InstallBindings()
         {
             BindGameplayController();
@@ -37,8 +41,9 @@ namespace Bootstrap
             BindFactories();
             BindLevelLoader();
             BindMiniMap();
-            
             BindUI();
+            BindCamerasController();
+            BindLoggerService();
         }
         
         private void BindGameplayController()
@@ -135,6 +140,21 @@ namespace Bootstrap
             Container.Bind<ISelectLevelPanelUI>()
                 .FromInstance(_selectLevelPanelUI)
                 .AsSingle();
+        }
+        
+        private void BindCamerasController()
+        {
+            Container.Bind<ICamerasController>()
+                .FromInstance(_camerasController)
+                .AsSingle();
+        }
+        
+        private void BindLoggerService()
+        {
+            Container.Bind<ILoggerService>()
+                .To<LoggerService.LoggerService>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

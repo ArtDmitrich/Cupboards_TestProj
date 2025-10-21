@@ -19,7 +19,7 @@ namespace Extensions
         /// <param name="onComplete">Колбек завершения анимации</param>
         /// <returns>Sequence анимации</returns>
         public static void FitToPoints(this Camera camera,
-            List<Point> points,
+            List<Transform> points,
             float padding = 4f,
             float animationDuration = 1f,
             Ease moveEase = Ease.OutCubic,
@@ -42,7 +42,7 @@ namespace Extensions
 
             foreach (var point in points)
             {
-                Vector3 position = point.transform.position;
+                var position = point.position;
                 minX = Mathf.Min(minX, position.x);
                 maxX = Mathf.Max(maxX, position.x);
                 minY = Mathf.Min(minY, position.y);

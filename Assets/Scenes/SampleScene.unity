@@ -192,6 +192,7 @@ MonoBehaviour:
   _miniMap: {fileID: 1480470686}
   _miniMapUI: {fileID: 1105316419}
   _selectLevelPanelUI: {fileID: 1871969884}
+  _camerasController: {fileID: 1530614758}
 --- !u!4 &277018080
 Transform:
   m_ObjectHideFlags: 0
@@ -428,6 +429,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44b718069065483bbdd2d5f2cf8f03db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1530614756 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6868248674156865531, guid: b743255d22b73704b9eaa3c806841693, type: 3}
+  m_PrefabInstance: {fileID: 8252469021307463529}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1530614758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530614756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a17375eb451b4ae5befeb448a50b17db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mainCamera: {fileID: 519420031}
+  _miniMapCamera: {fileID: 955667743}
 --- !u!1 &1738550439
 GameObject:
   m_ObjectHideFlags: 0
@@ -895,7 +915,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6868248674156865531, guid: b743255d22b73704b9eaa3c806841693, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1530614758}
   m_SourcePrefab: {fileID: 100100000, guid: b743255d22b73704b9eaa3c806841693, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

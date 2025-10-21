@@ -1,16 +1,17 @@
-﻿using Extensions;
+﻿using CamerasController;
+using Extensions;
 using FactoryAndPoolObject;
 using Gameplay.GameItems;
 using LevelLoaderService;
 using UI;
 using UnityEngine;
 using Zenject;
+using CameraType = CamerasController.CameraType;
 
 namespace MiniMap
 {
     public class MiniMap : MonoBehaviour, IMiniMap
     {
-        [SerializeField] private Camera _miniMapCamera;
         [SerializeField] private int _miniMapLayer;
 
         [SerializeField] private Transform _miniMapContainer;
@@ -22,15 +23,18 @@ namespace MiniMap
         private IGameItemFactory<Chip> _chipFactory;
         private IGameItemFactory<Connection> _connectionFactory;
         private IMiniMapUI _miniMapUI;
+        private ICamerasController _camerasController;
 
         [Inject]
         public void Construct(IGameItemFactory<Point> pointFactory, IGameItemFactory<Chip> chipFactory,
-            IGameItemFactory<Connection> connectionFactory, IMiniMapUI miniMapUI)
+            IGameItemFactory<Connection> connectionFactory, IMiniMapUI miniMapUI,
+            ICamerasController camerasController)
         {
             _pointFactory = pointFactory;
             _chipFactory = chipFactory;
             _connectionFactory = connectionFactory;
             _miniMapUI = miniMapUI;
+            _camerasController = camerasController;
             
             _miniMapLevelData = new LevelData();
             _miniMapUI.SetRenderTexture(_miniMapRenderTexture);
@@ -44,7 +48,8 @@ namespace MiniMap
             CreateConnections(levelData);
             CreateChipsInWinPositions(levelData);
             
-            _miniMapCamera.FitToPoints(_miniMapLevelData.Points);
+            _camerasController.FitToPointsCamera(CameraType.MiniMapCamera, 
+                _miniMapLevelData.GetGameItemTransforms(GameItemType.Point));
             
             gameObject.SetLayerRecursively(_miniMapLayer);
         }
@@ -52,7 +57,7 @@ namespace MiniMap
         public void SetMiniMapVisible(bool visible)
         {
             _miniMapContainer.gameObject.SetActive(visible);
-            _miniMapCamera.gameObject.SetActive(visible);
+            _camerasController.SetCameraEnabled(CameraType.MiniMapCamera, visible);
         }
 
         private void CreatePoints(LevelData levelData)

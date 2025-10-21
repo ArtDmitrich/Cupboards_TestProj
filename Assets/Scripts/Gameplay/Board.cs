@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Gameplay.GameItems;
 using LevelLoaderService;
+using LoggerService;
 using UnityEngine;
+using Zenject;
 
 namespace Gameplay
 {
@@ -12,6 +15,11 @@ namespace Gameplay
         private  List<Chip> _chips = new ();
         private  List<Connection> _connections = new ();
         private  Dictionary<int, Point> _points = new ();
+        
+        private ILoggerService _loggerService;
+        
+        [Inject]
+        public void Construct(ILoggerService loggerService) => _loggerService = loggerService;
     
         public void SetData(List<Chip> chips, List<Point> points, List<Connection> boardConnections)
         {
@@ -96,7 +104,7 @@ namespace Gameplay
             }
             catch (Exception e)
             {
-                Debug.LogError("Error find path: " + e.Message);
+                _loggerService.LogError("Error find path: " + e.Message);
             }
             
             return null;
